@@ -1,4 +1,4 @@
-import { Home } from "./pages";
+import { Home, Quiz, Result } from "./pages";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
@@ -6,6 +6,8 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/quiz/:quizId" element={<Quiz />} />
+        <Route path="/result" element={<Result />} />
       </Routes>
     </div>
   );
