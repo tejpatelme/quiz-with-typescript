@@ -23,7 +23,7 @@ export default function Quiz() {
 
   const setBackgroundColor = (option: Option) => {
     if (isOptionSelected) {
-      return option.isRight ? "bg-green-700" : "bg-red-700";
+      return option.isRight ? "bg-green-600" : "bg-red-600";
     }
     return "bg-gray-700";
   };
@@ -68,7 +68,7 @@ export default function Quiz() {
               onClick={() => handleOptionClick(option)}
               className={`w-full p-4 text-left text-white ${setBackgroundColor(
                 option
-              )} rounded`}
+              )} rounded duration-300`}
             >
               {option.option}
             </button>
