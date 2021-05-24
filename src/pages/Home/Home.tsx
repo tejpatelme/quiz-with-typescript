@@ -11,7 +11,7 @@ export default function Home() {
     <>
       <Navbar />
       <main className="p-4">
-        <div className="grid xl:grid-cols-3 lg:grid-cols-2  grid-cols-1 gap-4">
+        <div className="grid xl:grid-cols-3 md:grid-cols-2  grid-cols-1 gap-4">
           {quizzes.map((quiz) => (
             <QuizTopic key={quiz.id} quiz={quiz} />
           ))}
