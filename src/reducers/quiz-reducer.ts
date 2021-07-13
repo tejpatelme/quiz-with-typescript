@@ -1,28 +1,37 @@
-import { quizzes } from "../data/database";
-import { Quiz } from "../data/quiz.type";
-import { ACTION, INITIAL_STATE } from "./quiz-reducer.types";
+import { QuizAction, InitialQuizState } from "../types/reducer-types";
 
-const initialState: INITIAL_STATE = {
+const initialState: InitialQuizState = {
   currentQuiz: null,
   score: 0,
   currentQuestionNo: 0,
   isOptionSelected: false,
+  attemptedQuestions: [],
 };
 
 const quizReducer = (
-  prevState: typeof initialState,
-  action: ACTION
-): INITIAL_STATE => {
+  prevState: InitialQuizState,
+  action: QuizAction
+): InitialQuizState => {
   switch (action.type) {
     case "SET_CURRENT_QUIZ": {
-      const { quizId } = action.payload;
-      const selectedQuiz: Quiz = quizzes.find(
-        (quiz) => quiz.id === quizId
-      ) as Quiz;
+      const { quizId, quizzes } = action.payload;
+      const selectedQuiz = quizzes.find((quiz) => quiz._id === quizId) || null;
 
       return {
         ...prevState,
         currentQuiz: selectedQuiz,
+      };
+    }
+
+    case "SET_SELECTED_OPTION": {
+      const { question, option } = action.payload;
+
+      return {
+        ...prevState,
+        attemptedQuestions: [
+          ...prevState!.attemptedQuestions,
+          { ...question, selectedOption: option },
+        ],
       };
     }
 
@@ -54,6 +63,7 @@ const quizReducer = (
         score: 0,
         currentQuestionNo: 0,
         isOptionSelected: false,
+        attemptedQuestions: [],
       };
     }
 
