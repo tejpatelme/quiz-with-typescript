@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import { Quiz } from "../../data/quiz.type";
+import { Quiz } from "../../types/quiz-types";
 
 type QuizTopicProp = {
   quiz: Quiz;
 };
 
 export default function QuizTopic({ quiz }: QuizTopicProp) {
-  const { id, name, imageURL } = quiz;
+  const { _id, name, imageURL } = quiz;
   return (
-    <Link to={`/quiz/${id}`}>
+    <Link to={`/quiz/${_id}`}>
       <div className="rounded overflow-hidden h-44">
         <div className="relative h-4/5">
           <img
