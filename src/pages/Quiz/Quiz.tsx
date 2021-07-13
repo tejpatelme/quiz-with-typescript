@@ -1,38 +1,67 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import QuestionCard from "../../components/QuestionCard/QuestionCard";
 import { useQuiz } from "../../context/quiz-context";
-import { Option } from "../../data/quiz.type";
+import { Option } from "../../types/quiz-types";
+import { saveResult, updateResult } from "../../services/quiz-requests";
+import { useAuth } from "../../context/auth-context";
 
 export default function Quiz() {
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+  const [isSavingResult, setIsSavingResult] = useState<boolean>(false);
   const { quizId } = useParams();
-  const { state, dispatch } = useQuiz();
-  const { currentQuestionNo, currentQuiz, isOptionSelected } = state;
+  const { dispatch: authDispatch, state: authState } = useAuth();
+  const { state, dispatch, quizzes } = useQuiz();
+  const { currentQuestionNo, currentQuiz, attemptedQuestions, score } = state;
   const currentQuestion = currentQuiz?.questions[currentQuestionNo];
+  const isLastQuestion =
+    currentQuiz?.questions.length === currentQuestionNo + 1;
+  const isQuizTaken = authState.authenticatedUser?.takenQuiz.find(
+    (result) => result.quizId._id === quizId
+  );
   const navigate = useNavigate();
 
-  const handleOptionClick = (option: Option) => {
-    dispatch({
-      type: "SET_IS_OPTION_SELECTED",
-      payload: { isOptionSelected: true },
-    });
+  const saveAndNavigateToResult = async () => {
+    setIsSavingResult(true);
+    const data = await saveResult(currentQuiz!._id, score, attemptedQuestions);
+    setIsSavingResult(false);
 
-    if (option.isRight) {
-      dispatch({ type: "INCREMENT_SCORE" });
+    if (data!.success) {
+      authDispatch({
+        type: "SAVE_RESULT",
+        payload: { result: data?.takenQuiz },
+      });
+
+      return navigate(`/result/${currentQuiz?._id}`, { replace: true });
     }
   };
 
-  const setBackgroundColor = (option: Option) => {
-    if (isOptionSelected) {
-      return option.isRight ? "bg-green-600" : "bg-red-600";
+  const updateAndNavigateToResult = async () => {
+    setIsSavingResult(true);
+    const data = await updateResult(
+      currentQuiz!._id,
+      score,
+      attemptedQuestions
+    );
+    setIsSavingResult(false);
+
+    if (data!.success) {
+      authDispatch({
+        type: "SAVE_RESULT",
+        payload: { result: data?.takenQuiz },
+      });
+
+      return navigate(`/result/${currentQuiz?._id}`, { replace: true });
     }
-    return "bg-gray-700";
   };
 
-  const incrementQuestionNumber = () => {
-    if (currentQuiz?.questions.length === currentQuestionNo + 1) {
-      return navigate("/result", { replace: true });
+  const incrementQuestionNumber = async () => {
+    if (isLastQuestion) {
+      return isQuizTaken
+        ? updateAndNavigateToResult()
+        : saveAndNavigateToResult();
     }
-
+    setSelectedOption(null);
     dispatch({
       type: "SET_IS_OPTION_SELECTED",
       payload: { isOptionSelected: false },
@@ -41,51 +70,39 @@ export default function Quiz() {
   };
 
   useEffect(
-    () => dispatch({ type: "SET_CURRENT_QUIZ", payload: { quizId } }),
+    () => {
+      if (quizzes) {
+        dispatch({ type: "SET_CURRENT_QUIZ", payload: { quizId, quizzes } });
+      }
+    },
     // eslint-disable-next-line
-    []
+    [quizzes]
   );
 
   return (
-    <div className="max-w-2xl m-auto">
-      <div className="h-64">
-        <img
-          src={currentQuestion?.imageURL}
-          alt=""
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="p-4">
-        <p className="text-xl md:text-2xl font-semibold text-white mb-4">
-          {currentQuestion?.question}
-        </p>
-        <div className="space-y-3  mb-8">
-          {currentQuestion?.options.map((option, idx) => (
+    <>
+      {!currentQuiz || isSavingResult ? (
+        <p className="text-white">Saving Result</p>
+      ) : (
+        <div className="max-w-2xl m-auto">
+          <QuestionCard
+            currentQuestion={currentQuestion!}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
+          />
+          <div className="flex justify-between items-center p-4">
+            <span className="text-base font-semibold text-gray-500">
+              {currentQuestionNo + 1}/{currentQuiz?.questions.length}
+            </span>
             <button
-              key={idx}
-              disabled={isOptionSelected}
-              onClick={() => handleOptionClick(option)}
-              className={`w-full p-4 text-left text-white ${setBackgroundColor(
-                option
-              )} rounded duration-300`}
+              onClick={incrementQuestionNumber}
+              className="text-base font-semibold bg-white rounded py-1 px-2"
             >
-              {option.option}
+              Next Question
             </button>
-          ))}
+          </div>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-base font-semibold text-gray-500">
-            {currentQuestionNo + 1}/{currentQuiz?.questions.length}
-          </span>
-          <button
-            onClick={incrementQuestionNumber}
-            className="text-base font-semibold bg-white rounded py-1 px-2"
-          >
-            Next Question
-          </button>
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
