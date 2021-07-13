@@ -26,7 +26,7 @@ export default function Signup() {
     if (token) {
       navigate("/login", { replace: true });
     }
-  }, []);
+  }, [token, navigate]);
 
   return (
     <div className="p-8 md:p-5 flex justify-center items-center h-screen">
