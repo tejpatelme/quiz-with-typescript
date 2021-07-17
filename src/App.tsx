@@ -1,6 +1,6 @@
 import { Home, Quiz, Result, Login, Signup, Results, Profile } from "./pages";
 import { PrivateRoute, Sidebar, Navbar } from "./components";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useAuth } from "./context/auth-context";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { initializeUser } from "./services/users-requests";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
+  const location = useLocation();
   const {
     state: { token },
     dispatch,
@@ -21,23 +22,25 @@ function App() {
   useEffect(() => {
     const setupDefaultHeaders = () => {
       if (token) {
-        return (axios.defaults.headers.common["Authorization"] = token);
+        axios.defaults.headers.common["Authorization"] = token;
+        return initializeUser(dispatch);
       }
       delete axios.defaults.headers.common["Authorization"];
     };
 
     setupDefaultHeaders();
-  }, [token]);
-
-  useEffect(() => {
-    if (token) {
-      initializeUser(dispatch);
-    }
   }, [token, dispatch]);
 
+  useEffect(() => {
+    setShowSidebar(false);
+  }, [location]);
+
   return (
-    <div>
+    <div onClick={() => setShowSidebar(false)}>
       <Toaster />
+      {showSidebar && (
+        <div className="fixed top-0 left-0 min-h-screen w-screen z-10 bg-gray-100 bg-opacity-10"></div>
+      )}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

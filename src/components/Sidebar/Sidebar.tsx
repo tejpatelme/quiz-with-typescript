@@ -14,6 +14,7 @@ export default function Sidebar({ showSidebar, setShowSidebar }: SidebarProp) {
 
   return (
     <div
+      onClick={(e) => e.stopPropagation()}
       className={`flex-shrink-0 px-4 py-5 fixed sm:sticky z-20 left-0 top-0 min-h-screen sm:h-screen w-64 bg-gray-800 border-r border-gray-800 sm:flex flex-col items-center duration-300 transform sm:translate-x-0
       ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}
     >

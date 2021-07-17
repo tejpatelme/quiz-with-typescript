@@ -5,9 +5,12 @@ type NavbarProp = {
 };
 
 export default function Navbar({ setShowSidebar }: NavbarProp) {
-  const onHamburgerClick = () => setShowSidebar((showSidebar) => !showSidebar);
+  const onHamburgerClick = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    setShowSidebar((showSidebar) => !showSidebar);
+  };
   return (
-    <nav className="sm:hidden max-w-full p-4 sm:mb-4 flex justify-center bg-gray-800 sticky z-10 top-0 left-0">
+    <nav className="sm:hidden max-w-full p-4 sm:mb-4 flex justify-center bg-gray-800 sticky top-0 left-0">
       <button onClick={onHamburgerClick}>
         <span className="material-icons-round absolute top-[1rem] left-[1rem] text-white text-3xl sm:hidden">
           menu
