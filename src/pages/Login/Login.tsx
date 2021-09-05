@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth-context";
 import { loginUser } from "../../services/users-requests";
+import Logo from "../../assets/logo.png";
 
 export default function Login() {
+  const [loginStatus, setLoginStatus] = useState<
+    "idle" | "loading" | "fulfilled" | "rejected"
+  >("idle");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const {
@@ -21,10 +25,29 @@ export default function Login() {
 
   const onLoginSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    setLoginStatus("loading");
     const success = await loginUser(dispatch, { email, password });
 
     if (success) {
+      setLoginStatus("fulfilled");
       navigate(`${state?.from ? state.from : "/"}`, { replace: true });
+    } else {
+      setLoginStatus("rejected");
+    }
+  };
+
+  const onGuestLoginClick = async () => {
+    setLoginStatus("loading");
+
+    const user = { email: "gilgamesh@gmail.com", password: "gilgamesh" };
+
+    const success = await loginUser(dispatch, user);
+
+    if (success) {
+      setLoginStatus("fulfilled");
+      navigate(`${state?.from ? state.from : "/"}`, { replace: true });
+    } else {
+      setLoginStatus("rejected");
     }
   };
 
@@ -37,7 +60,9 @@ export default function Login() {
   return (
     <div className="p-8 md:p-5 flex justify-center items-center h-screen">
       <div className="max-w-md flex-grow">
-        <div className="flex mb-6">Logo</div>
+        <div className="flex mb-6">
+          <img src={Logo} alt="" />
+        </div>
         <h2 className="text-2xl font-bold text-white mb-8">Login</h2>
 
         <form onSubmit={onLoginSubmit} className="mb-3">
@@ -59,12 +84,19 @@ export default function Login() {
           />
           <button
             type="submit"
-            className="rounded px-4 py-3 font-bold text-white bg-purple-600 w-full"
+            disabled={loginStatus === "loading"}
+            className="rounded px-4 py-3 font-bold text-white bg-purple-600 w-full disabled:cursor-not-allowed"
           >
-            Login
+            {loginStatus === "loading" ? "Logging In..." : "Login"}
           </button>
         </form>
-
+        <button
+          onClick={onGuestLoginClick}
+          disabled={loginStatus === "loading"}
+          className="rounded px-4 py-3 font-bold text-white bg-purple-600 w-full mb-3 disabled:cursor-not-allowed"
+        >
+          {loginStatus === "loading" ? "Logging In..." : "Login as Guest"}
+        </button>
         <p className="text-white">
           Don't have an account?{" "}
           <Link to="/signup" className="text-purple-600 underline">

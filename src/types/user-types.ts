@@ -26,8 +26,8 @@ export type User = {
 };
 
 export type UserLogin = {
-  email: string;
-  password: string;
+  email: string | "gilgamesh@gmail.com";
+  password: string | "gilgamesh";
 };
 
 export type UserSignup = {
