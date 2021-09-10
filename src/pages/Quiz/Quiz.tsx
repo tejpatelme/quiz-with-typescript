@@ -5,6 +5,7 @@ import { useQuiz } from "../../context/quiz-context";
 import { Option } from "../../types/quiz-types";
 import { saveResult, updateResult } from "../../services/quiz-requests";
 import { useAuth } from "../../context/auth-context";
+import { Spinner } from "../../components";
 
 export default function Quiz() {
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -82,7 +83,12 @@ export default function Quiz() {
   return (
     <>
       {!currentQuiz || isSavingResult ? (
-        <p className="text-white">Saving Result</p>
+        <div className="min-h-screen w-full flex flex-col justify-center items-center">
+          <Spinner size="50" color="#E5E7EB" />
+          <span className="text-gray-200 font-medium text-lg mt-2">
+            Saving Result
+          </span>
+        </div>
       ) : (
         <div className="max-w-2xl m-auto">
           <QuestionCard
