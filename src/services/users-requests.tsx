@@ -4,12 +4,11 @@ import { UserLogin, UserSignup } from "../types/user-types";
 import { AuthAction } from "../types/reducer-types";
 import { LoadUserResponse, SignupResponse } from "../types/response-types";
 import { axiosRequest } from "./axios-request";
+import { API_URLS } from "./apiUrls";
 
 export const initializeUser = async (dispatch: React.Dispatch<AuthAction>) => {
   const data = await axiosRequest(() =>
-    axios.get<LoadUserResponse>(
-      "https://quiz-app-backend.curiousguy.repl.co/users/user"
-    )
+    axios.get<LoadUserResponse>(API_URLS.GET_USER)
   );
 
   if (data.success && "user" in data) {
@@ -30,7 +29,7 @@ export const loginUser = async (
 ): Promise<boolean> => {
   toast.loading("Logging in", { duration: 1500 });
   const data = await axiosRequest(() =>
-    axios.post("https://quiz-app-backend.curiousguy.repl.co/users/login", {
+    axios.post(API_URLS.LOGIN_USER, {
       email: user.email,
       password: user.password,
     })
@@ -52,13 +51,9 @@ export const loginUser = async (
 };
 
 export const signUpUser = async (user: UserSignup): Promise<boolean> => {
-  console.log(user);
   toast.loading("Signing up", { duration: 1500 });
   const data = await axiosRequest(() =>
-    axios.post<SignupResponse>(
-      "https://quiz-app-backend.curiousguy.repl.co/users/signup",
-      user
-    )
+    axios.post<SignupResponse>(API_URLS.SIGNUP_USER, user)
   );
 
   if (data.success) {

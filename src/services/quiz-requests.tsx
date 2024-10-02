@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Question } from "../types/quiz-types";
 import { SaveResultResponse } from "../types/response-types";
 import { axiosRequest } from "./axios-request";
+import { API_URLS } from "./apiUrls";
 
 export const saveResult = async (
   quizId: string,
@@ -10,15 +11,10 @@ export const saveResult = async (
   attemptedQuestions: Question[]
 ) => {
   const data = await axiosRequest(() =>
-    axios.post<SaveResultResponse>(
-      "https://quiz-app-backend.curiousguy.repl.co/users/result/save",
-      {
-        result: { quizId, score, attemptedQuestions },
-      }
-    )
+    axios.post<SaveResultResponse>(API_URLS.SAVE_RESULT, {
+      result: { quizId, score, attemptedQuestions },
+    })
   );
-
-  console.log(data);
 
   if ("takenQuiz" in data) {
     return data;
@@ -35,15 +31,10 @@ export const updateResult = async (
   attemptedQuestions: Question[]
 ) => {
   const data = await axiosRequest(() =>
-    axios.post<SaveResultResponse>(
-      "https://quiz-app-backend.curiousguy.repl.co/users/result/update",
-      {
-        retakenQuiz: { quizId, score, attemptedQuestions },
-      }
-    )
+    axios.post<SaveResultResponse>(API_URLS.UPDATE_RESULT, {
+      retakenQuiz: { quizId, score, attemptedQuestions },
+    })
   );
-
-  console.log(data);
 
   if ("takenQuiz" in data) {
     return data;

@@ -12,6 +12,7 @@ import { initialState, quizReducer } from "../reducers/quiz-reducer";
 import { axiosRequest } from "../services/axios-request";
 import { QuizContextType, QuizProviderProp } from "../types/context-types";
 import { LoadDataResponse } from "../types/response-types";
+import { API_URLS } from "../services/apiUrls";
 
 const QuizContext = createContext<QuizContextType>({
   state: initialState,
@@ -25,18 +26,18 @@ export const QuizProvider = ({ children }: QuizProviderProp) => {
 
   useEffect(() => {
     (async () => {
-      const data = await axiosRequest(() =>
-        axios.get<LoadDataResponse>(
-          "https://quiz-app-backend.curiousguy.repl.co/quizzes"
-        )
-      );
-      if (data.success && "quizzes" in data) {
-        return setQuizzes(data.quizzes);
-      }
+      try {
+        const data = await axiosRequest(() =>
+          axios.get<LoadDataResponse>(API_URLS.GET_QUIZZES)
+        );
+        if (data.success && "quizzes" in data) {
+          return setQuizzes(data.quizzes);
+        }
 
-      if (!data.success && "errorMessage" in data) {
-        toast.error(data.errorMessage);
-      }
+        if (!data.success && "errorMessage" in data) {
+          toast.error(data.errorMessage);
+        }
+      } catch (error) {}
     })();
   }, []);
 
